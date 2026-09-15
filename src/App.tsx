@@ -26,7 +26,7 @@ import { SleepPage } from './pages/SleepPage';
 import { GroomingPage } from './pages/GroomingPage';
 import { EnrichmentPage } from './pages/EnrichmentPage';
 import { AILabPage } from './pages/AILabPage';
-import { THEMES } from './constants';
+import { THEMES, PAGE_TITLES } from './constants';
 import { Bone, ArrowRight } from 'lucide-react';
 import { AuthGate } from './components/AuthGate';
 import { ToolsPage } from './pages/ToolsPage';
@@ -247,17 +247,41 @@ function Dashboard() {
 
       <div className="flex flex-col min-h-screen">
         <TopBar page={page} setPage={setPage} state={state} onMore={() => setShowMore(true)} onCommandPalette={() => setShowCommandPalette(true)} />
-        <main className="flex-1" key={page} style={{ 
+        <main className="flex-1" key={page} style={{
           background: 'radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--brass) 3%, transparent), transparent 50%)'
         }}>
+          {/* Mobile page heading */}
+          <div
+            className="sm:hidden page-mobile-heading"
+            style={{ padding: '14px 16px 6px' }}
+          >
+            <h2 style={{
+              fontFamily: 'var(--font-d)',
+              fontSize: 25,
+              fontWeight: 600,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+              margin: 0,
+            }}>
+              {(PAGE_TITLES[page] || ['Dashboard', ''])[0]}
+            </h2>
+            <div style={{
+              fontSize: 12,
+              color: 'var(--muted)',
+              marginTop: 2,
+              fontWeight: 500,
+            }}>
+              {(PAGE_TITLES[page] || ['', ''])[1]}
+            </div>
+          </div>
           {renderPage()}
         </main>
       </div>
 
-      <MobileNav page={page} setPage={setPage} />
+      <MobileNav page={page} setPage={setPage} onOpenQuickLog={() => setShowQuickLog(true)} />
 
-      {/* FAB */}
-      <button className="fab" onClick={() => setShowQuickLog(true)} aria-label="Quick log">
+      {/* FAB (desktop only) */}
+      <button className="fab hidden sm:grid" onClick={() => setShowQuickLog(true)} aria-label="Quick log">
         +
       </button>
 

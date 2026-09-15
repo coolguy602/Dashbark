@@ -222,60 +222,175 @@ export function Sidebar({
   );
 }
 
-export function MobileNav({ page, setPage }: { page: PageId; setPage: (p: PageId) => void }) {
-  const items = [
+export function MobileNav({
+  page,
+  setPage,
+  onOpenQuickLog,
+}: {
+  page: PageId;
+  setPage: (p: PageId) => void;
+  onOpenQuickLog: () => void;
+}) {
+  const sideItems = [
     { id: 'home' as PageId, icon: Home, label: 'Home' },
-    { id: 'moods' as PageId, icon: Smile, label: 'Moods' },
     { id: 'care' as PageId, icon: Bone, label: 'Care' },
-    { id: 'trends' as PageId, icon: TrendingUp, label: 'Trends' },
-    { id: 'settings' as PageId, icon: Settings, label: 'More' },
   ];
+  const rightItems = [
+    { id: 'trends' as PageId, icon: TrendingUp, label: 'Trends' },
+    { id: 'profile' as PageId, icon: UserRound, label: 'Profile' },
+  ];
+  const centerActive = page === 'bark' || page === 'soundlab' || page === 'analyzer';
   return (
     <nav
-      className="sm:hidden fixed bottom-0 left-0 right-0 flex justify-around px-2"
+      className="sm:hidden fixed left-0 right-0 flex items-end justify-center"
       aria-label="Primary navigation"
       style={{
-        background: 'color-mix(in srgb, var(--bg-deep) 98%, transparent)',
-        borderTop: '1px solid var(--line)',
+        bottom: 0,
         zIndex: 50,
+        paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         paddingTop: 8,
-        paddingBottom: 'calc(8px + env(safe-area-inset-bottom))',
-        backdropFilter: 'blur(24px)',
-        boxShadow: '0 -8px 32px -8px rgba(0,0,0,0.1)',
+        paddingLeft: 10,
+        paddingRight: 10,
+        pointerEvents: 'none',
       }}
     >
-      {items.map(item => {
-        const Icon = item.icon;
-        const active = page === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setPage(item.id)}
-            className="flex flex-col items-center gap-1 py-2 px-3"
-            style={{
-              color: active ? 'var(--brass)' : 'var(--muted)',
-              fontSize: 10,
-              fontWeight: active ? 700 : 500,
-              position: 'relative',
-              transition: 'color .2s ease, background-color .2s ease, transform .2s ease',
-            }}
-          >
-            {active && (
-              <div style={{
-                position: 'absolute', top: -4, left: '50%', transform: 'translateX(-50%)',
-                width: 28, height: 3, borderRadius: 99,
-                background: 'var(--brass)',
-                boxShadow: '0 4px 12px -4px color-mix(in srgb, var(--brass) 40%, transparent)',
-              }} />
-            )}
-            <Icon size={22} style={{ 
-              strokeWidth: active ? 2.5 : 2,
-              filter: active ? 'drop-shadow(0 2px 4px color-mix(in srgb, var(--brass) 30%, transparent))' : 'none'
-            }} />
-            <span style={{ marginTop: 2 }}>{item.label}</span>
-          </button>
-        );
-      })}
+      <div
+        className="mobile-tab-bar pointer-events-auto"
+        style={{
+          width: '100%',
+          maxWidth: 520,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          padding: '6px 6px',
+          borderRadius: 26,
+          background: 'color-mix(in srgb, var(--bg-deep) 88%, transparent)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+          border: '1px solid var(--line)',
+          boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.35), 0 12px 32px -12px rgba(0,0,0,0.2)',
+          position: 'relative',
+        }}
+      >
+        {sideItems.map(item => {
+          const Icon = item.icon;
+          const active = page === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setPage(item.id)}
+              className="mobile-tab-item"
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                minHeight: 58,
+                padding: '6px 4px',
+                borderRadius: 20,
+                color: active ? 'var(--ink)' : 'var(--muted)',
+                fontSize: 10.5,
+                fontWeight: active ? 700 : 500,
+                position: 'relative',
+                background: active
+                  ? 'linear-gradient(150deg, color-mix(in srgb, var(--brass) 22%, transparent), color-mix(in srgb, var(--brass) 10%, transparent))'
+                  : 'transparent',
+                border: active ? '1px solid color-mix(in srgb, var(--brass) 40%, transparent)' : '1px solid transparent',
+                transition: 'all .22s cubic-bezier(.2,.8,.2,1)',
+              }}
+            >
+              <Icon
+                size={23}
+                style={{
+                  strokeWidth: active ? 2.6 : 2,
+                  color: active ? 'var(--brass)' : 'currentColor',
+                  filter: active
+                    ? 'drop-shadow(0 3px 6px color-mix(in srgb, var(--brass) 35%, transparent))'
+                    : 'none',
+                }}
+              />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+
+        {/* Center Quick Log / Bark action button */}
+        <button
+          onClick={onOpenQuickLog}
+          aria-label="Quick log"
+          style={{
+            flex: '0 0 auto',
+            width: 64,
+            height: 64,
+            margin: '-16px 6px -4px',
+            borderRadius: '50%',
+            display: 'grid',
+            placeItems: 'center',
+            background: 'linear-gradient(150deg, var(--brass-light), var(--brass-deep))',
+            color: '#1a1812',
+            border: '2px solid color-mix(in srgb, var(--bg-deep) 60%, transparent)',
+            boxShadow: centerActive
+              ? '0 14px 40px -8px color-mix(in srgb, var(--brass) 55%, transparent), 0 0 0 3px color-mix(in srgb, var(--brass) 30%, transparent)'
+              : '0 14px 40px -10px color-mix(in srgb, var(--brass) 45%, transparent)',
+            transition: 'transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s',
+            transform: centerActive ? 'scale(1.05)' : 'scale(1)',
+            zIndex: 2,
+          }}
+        >
+          <Mic size={26} style={{ strokeWidth: 2.6 }} />
+        </button>
+
+        {rightItems.map(item => {
+          const Icon = item.icon;
+          const active = page === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setPage(item.id)}
+              className="mobile-tab-item"
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                minHeight: 58,
+                padding: '6px 4px',
+                borderRadius: 20,
+                color: active ? 'var(--ink)' : 'var(--muted)',
+                fontSize: 10.5,
+                fontWeight: active ? 700 : 500,
+                position: 'relative',
+                background: active
+                  ? 'linear-gradient(150deg, color-mix(in srgb, var(--brass) 22%, transparent), color-mix(in srgb, var(--brass) 10%, transparent))'
+                  : 'transparent',
+                border: active ? '1px solid color-mix(in srgb, var(--brass) 40%, transparent)' : '1px solid transparent',
+                transition: 'all .22s cubic-bezier(.2,.8,.2,1)',
+              }}
+            >
+              <Icon
+                size={23}
+                style={{
+                  strokeWidth: active ? 2.6 : 2,
+                  color: active ? 'var(--brass)' : 'currentColor',
+                  filter: active
+                    ? 'drop-shadow(0 3px 6px color-mix(in srgb, var(--brass) 35%, transparent))'
+                    : 'none',
+                }}
+              />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }
